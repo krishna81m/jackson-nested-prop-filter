@@ -3,6 +3,8 @@ jackson-nested-prop-filter
 
 Let's you filter Jackson nested class properties without any (hardly noticeable) performance overhead. Your typical Spring 4.2+ controller can be modified as follows:
 
+
+
 ```
 FilterProvider customJsonFilterProvider;
 
@@ -21,4 +23,21 @@ public void setup(){
 		jacksonValue.setFilters(customJsonFilterProvider);
 		return jacksonValue;
 	}
+```
+
+of course, all entities that are being filtered should have the @JsonFilter("nestedPropertyFilter") with the correct filter name so object mapper correctly picks the right filter with the name: "nestedPropertyFilter"
+
+```
+public class CustomObjectMapper extends ObjectMapper{
+
+	private static final long serialVersionUID = 1L;
+
+	public CustomObjectMapper() {
+		super();
+		this.registerModule(new AfterburnerModule());
+		this.setFilters(new SimpleFilterProvider().setFailOnUnknownId(false));
+		this.addMixIn(Object.class, NestedBeanPropertyFilter.class);
+	}
+
+}
 ```
