@@ -1,4 +1,4 @@
-package com.coupons.nextgen.jackson;
+package rk.prod.jackson;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;

@@ -1,4 +1,4 @@
-package com.coupons.nextgen.jackson;
+package rk.prod.jackson;
 
 import java.util.Arrays;
 import java.util.HashMap;

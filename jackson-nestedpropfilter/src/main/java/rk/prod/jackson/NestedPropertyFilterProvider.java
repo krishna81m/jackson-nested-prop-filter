@@ -1,4 +1,4 @@
-package com.coupons.nextgen.jackson;
+package rk.prod.jackson;
 
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
