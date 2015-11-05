@@ -9,7 +9,7 @@ FilterProvider customJsonFilterProvider;
 @PostConstruct
 public void setup(){
    customJsonFilterProvider = new NestedPropertyFilterProvider()
-			.addFilter("antPathFilter", 
+			.addFilter("nestedPropertyFilter", 
 				new NestedBeanPropertyFilter(YourVO.class, "prop1", "prop1.prop2", "prop1.prop2.prop3"); 
 ...
 
