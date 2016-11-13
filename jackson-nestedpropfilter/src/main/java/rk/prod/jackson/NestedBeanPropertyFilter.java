@@ -1,6 +1,7 @@
 package rk.prod.jackson;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,9 +21,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
  * for Jackson
  */
 public class NestedBeanPropertyFilter extends SimpleBeanPropertyFilter {
-	
-	private Map<Class<?>, SimpleBeanPropertyFilter> classLevelBeanPropertyFilter
-			= new HashMap<Class<?>, SimpleBeanPropertyFilter>();
+
+	private Map<Class<?>, SimpleBeanPropertyFilter> classLevelBeanPropertyFilter = new HashMap<Class<?>, SimpleBeanPropertyFilter>();
 
 	/**
 	 * Construct filter based on many nested properties as follows
