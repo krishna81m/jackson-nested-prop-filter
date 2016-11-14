@@ -1,8 +1,6 @@
 package rk.prod.jackson;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -22,6 +20,10 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
  */
 public class NestedBeanPropertyFilter extends SimpleBeanPropertyFilter {
 
+	public static SimpleBeanPropertyFilter filterOutAllExcept(Class<?> clazz, String... propertyArray) {
+		return new NestedBeanPropertyFilter(clazz, propertyArray);
+	}
+
 	private Map<Class<?>, SimpleBeanPropertyFilter> classLevelBeanPropertyFilter = new HashMap<Class<?>, SimpleBeanPropertyFilter>();
 
 	/**
@@ -29,7 +31,7 @@ public class NestedBeanPropertyFilter extends SimpleBeanPropertyFilter {
 	 * prop1, classAObj.class1Obj.prop2, classAObj.class2Obj, prop3 
 	 * @param properties
 	 */
-	public NestedBeanPropertyFilter(Class<?> clazz, final String ... properties){
+	private NestedBeanPropertyFilter(Class<?> clazz, final String ... properties){
 	
 		Map<Class<?>, JacksonClassAttribute> classLevelJsonAttribute = JacksonClassAttributeCache.generateClassLevelJsonAttribute(
 			clazz, properties
@@ -37,7 +39,7 @@ public class NestedBeanPropertyFilter extends SimpleBeanPropertyFilter {
 		
 		for(Entry<Class<?>, JacksonClassAttribute> entry : classLevelJsonAttribute.entrySet()){
 			classLevelBeanPropertyFilter.put(entry.getKey(),
-					SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue().attributes.keySet()));
+					SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue().getAttributes().keySet()));
 		}
 	}
 	

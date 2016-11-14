@@ -22,18 +22,18 @@ public class JacksonClassAttributeCache {
             .omitEmptyStrings();
 
     // TODO: pre populate json class attribute map for ONLY root entities
-    static final Map<Class<?>, JacksonClassAttribute> rootEntityNestedAttrMap = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, JacksonClassAttribute> rootEntityNestedAttrMap = new ConcurrentHashMap<>();
 
     // only has attributes for the current class but includes all classes that
     // NEED NOT BE root entities
-    static final Map<Class<?>, JacksonClassAttribute> nonNestedAttrMap = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, JacksonClassAttribute> nonNestedAttrMap = new ConcurrentHashMap<>();
 
     // all classes (nested) contained within a root class
-    static final Map<Class<?>, Set<Class<?>>> nestedClassesMap = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Set<Class<?>>> nestedClassesMap = new ConcurrentHashMap<>();
 
-    public static JacksonClassAttribute generateJsonAttribute(Class<?> clazz) {
-        JacksonClassAttribute classAttribute = null;
-        if ((classAttribute = rootEntityNestedAttrMap.get(clazz)) == null) {
+    private static JacksonClassAttribute generateJsonAttribute(Class<?> clazz) {
+        JacksonClassAttribute classAttribute = rootEntityNestedAttrMap.get(clazz);
+        if (classAttribute == null) {
             try {
                 Set<Class<?>> nestedClasses = new HashSet<>();
                 classAttribute = JacksonAttributeBuilder.getBeanUtilsNestedJsonAttribute(
@@ -58,7 +58,7 @@ public class JacksonClassAttributeCache {
         JacksonClassAttribute srcAttribute = generateJsonAttribute(clazz);
         JacksonClassAttribute destAttribute = new JacksonClassAttribute(clazz);
         for (String prop : properties) {
-            copyAttribute(srcAttribute, destAttribute, dotSplitter.splitToList(prop));
+            copyAttribute(srcAttribute, destAttribute, dotSplitter.splitToList(prop), null);
         }
         return destAttribute;
     }
@@ -86,66 +86,63 @@ public class JacksonClassAttributeCache {
             destClassMap.put(src.getClazz(), dest);
         }
 
-        for (String prop : splitProp) {
-            boolean inSrc = src.getAttributes().containsKey(prop);
-            if (!inSrc) {    // validation error?
-                return;
-            }
-            // else, this is a valid entry in src
-
-            // copy the value from src attribute map to dest based on value type
-            JacksonClassAttribute srcNestedAttribute = src.attributes.get(prop);
-            JacksonClassAttribute destNestedAttribute = dest.attributes.get(prop);
-            if (destNestedAttribute == null) {
-                if (srcNestedAttribute != null) {    // save property with ClassAttribute value
-                    destNestedAttribute = new JacksonClassAttribute(srcNestedAttribute.getClazz());
-                    dest.attributes.put(prop, destNestedAttribute);
-                    destClassMap.put(srcNestedAttribute.getClazz(), destNestedAttribute);
-                } else {    // save property with null value
-                    dest.attributes.put(prop, destNestedAttribute);    // null
-                }
-            } else {
-                // destination already has this field // validation error?
-                // validate that they are the same type, but previously if it is a property type
-                // above iteration takes care of overwriting
-            }
-
-            src = srcNestedAttribute;
-            dest = destNestedAttribute;
-        }
+        copyAttribute(src, dest, splitProp, destClassMap);
     }
 
     // i starts at 0
     // use validate flag if required to check if it does exist
-    static void copyAttribute(JacksonClassAttribute src, JacksonClassAttribute dest, List<String> splitProp) {
+    private static void copyAttribute(JacksonClassAttribute src, JacksonClassAttribute dest, List<String> splitProp, Map<Class<?>, JacksonClassAttribute> destClassMap) {
         // TODO: validate that current root entries: src/dest cannot be null
         for (String prop : splitProp) {
 
-            boolean inSrc = src.getAttributes().containsKey(prop);
-            if (!inSrc) {    // validation error?
-                return;
-            }
-            // else, this is a valid entry in src
+            if (prop.equals("*")) {
+                Map<String, JacksonClassAttribute> srcAttributes = src.getAttributes();
+                for (Map.Entry<String, JacksonClassAttribute> attributeEntry : srcAttributes.entrySet()) {
+                    String key = attributeEntry.getKey();
+                    JacksonClassAttribute destNestedAttribute = dest.getAttributes().get(key);
+                    if (destNestedAttribute == null) {
+                        if (attributeEntry.getValue() != null) {    // save property with ClassAttribute value
+                            destNestedAttribute = new JacksonClassAttribute(attributeEntry.getValue().getClazz());
+                            dest.getAttributes().put(key, destNestedAttribute);
+                            if (destClassMap != null) {
+                                destClassMap.put(attributeEntry.getValue().getClazz(), destNestedAttribute);
+                            }
+                        } else {    // save property with null value
+                            dest.getAttributes().put(key, null);    // null
+                        }
+                    } else {
 
-            // copy the value from src attribute map to dest based on value type
-            JacksonClassAttribute srcNestedAttribute = src.attributes.get(prop);
-            JacksonClassAttribute destNestedAttribute = dest.attributes.get(prop);
-
-            if (destNestedAttribute == null) {
-                if (srcNestedAttribute != null) {    // save property with ClassAttribute value
-                    destNestedAttribute = new JacksonClassAttribute(srcNestedAttribute.getClazz());
-                    dest.attributes.put(prop, destNestedAttribute);
-                } else {    // save property with null value
-                    dest.attributes.put(prop, destNestedAttribute);    // null
+                    }
                 }
             } else {
-                // destination already has this field // validation error?
-                // validate that they are the same type, but previously if it is a property type
-                // above iteration takes care of overwriting
-            }
+                boolean inSrc = src.getAttributes().containsKey(prop);
+                if (!inSrc) {    // validation error?
+                    return;
+                }
+                // else, this is a valid entry in src
 
-            src = srcNestedAttribute;
-            dest = destNestedAttribute;
+                // copy the value from src attribute map to dest based on value type
+                JacksonClassAttribute srcNestedAttribute = src.getAttributes().get(prop);
+                JacksonClassAttribute destNestedAttribute = dest.getAttributes().get(prop);
+                if (destNestedAttribute == null) {
+                    if (srcNestedAttribute != null) {    // save property with ClassAttribute value
+                        destNestedAttribute = new JacksonClassAttribute(srcNestedAttribute.getClazz());
+                        dest.getAttributes().put(prop, destNestedAttribute);
+                        if (destClassMap != null) {
+                            destClassMap.put(srcNestedAttribute.getClazz(), destNestedAttribute);
+                        }
+                    } else {    // save property with null value
+                        dest.getAttributes().put(prop, null);    // null
+                    }
+                } else {
+                    // destination already has this field // validation error?
+                    // validate that they are the same type, but previously if it is a property type
+                    // above iteration takes care of overwriting
+                }
+
+                src = srcNestedAttribute;
+                dest = destNestedAttribute;
+            }
         }
     }
 
