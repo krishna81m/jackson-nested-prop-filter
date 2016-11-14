@@ -51,7 +51,7 @@ public class JacksonClassAttribute {
 
 	@Override
 	public String toString() {
-		return "JacksonClassAttribute [clazz=" + clazz
+		return "JacksonClassAttribute [class=" + clazz
 				+ ", attributes=" + Arrays.toString(attributes.entrySet().toArray()) + "]";
 	}
 
