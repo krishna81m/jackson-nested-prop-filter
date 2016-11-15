@@ -20,7 +20,9 @@ public class NestedBeanPropertyFilterTest {
 
     private SimpleFilterProvider p1 = new NestedPropertyFilterProvider().addFilter("nestedPropertyFilter", NestedBeanPropertyFilter.filterOutAllExcept(Pojo.class, "a", "c.c.*", "c.a"));
 
-    private SimpleFilterProvider p2 = new NestedPropertyFilterProvider().addFilter("nestedPropertyFilter", NestedBeanPropertyFilter.filterOutAllExcept(Pojo.class, "a", "c.*", "c.c.a"));
+    private SimpleFilterProvider p2 = new NestedPropertyFilterProvider().addFilter("nestedPropertyFilter", NestedBeanPropertyFilter.filterOutAllExcept(Pojo.class, "a", "c.*"));
+
+    private SimpleFilterProvider p3 = new NestedPropertyFilterProvider().addFilter("nestedPropertyFilter", NestedBeanPropertyFilter.filterOutAllExcept(Pojo.class, "*"));
 
     @Test
     public void serializeTest() throws JsonProcessingException {
@@ -58,7 +60,20 @@ public class NestedBeanPropertyFilterTest {
 
         System.out.println(valueAsString);
 
-        Assert.assertEquals("{\"a\":\"a\",\"c\":{\"a\":\"c.a\",\"b\":4,\"c\":{\"a\":\"c.c.a\"}}}", valueAsString);
+        Assert.assertEquals("{\"a\":\"a\",\"c\":{\"a\":\"c.a\",\"b\":4,\"c\":{\"a\":\"c.c.a\",\"b\":7}}}", valueAsString);
+    }
+
+    @Test
+    public void serializeWithAstrix3Test() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        objectMapper.setFilterProvider(p3);
+
+        String valueAsString = objectMapper.writeValueAsString(pojo);
+
+        System.out.println(valueAsString);
+
+        Assert.assertEquals("{\"a\":\"a\",\"b\":2,\"c\":{\"a\":\"c.a\",\"b\":4,\"c\":{\"a\":\"c.c.a\",\"b\":7}}}", valueAsString);
     }
 
 }

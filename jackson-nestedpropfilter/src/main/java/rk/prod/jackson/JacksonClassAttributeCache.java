@@ -1,6 +1,7 @@
 package rk.prod.jackson;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +21,8 @@ public class JacksonClassAttributeCache {
     private static final Splitter dotSplitter = Splitter.on('.')
             .trimResults()
             .omitEmptyStrings();
+
+    private static final ArrayList<String> PROP_ASTRIX = Lists.newArrayList("*");
 
     // TODO: pre populate json class attribute map for ONLY root entities
     private static final Map<Class<?>, JacksonClassAttribute> rootEntityNestedAttrMap = new ConcurrentHashMap<>();
@@ -101,12 +104,14 @@ public class JacksonClassAttributeCache {
                     String key = attributeEntry.getKey();
                     JacksonClassAttribute destNestedAttribute = dest.getAttributes().get(key);
                     if (destNestedAttribute == null) {
-                        if (attributeEntry.getValue() != null) {    // save property with ClassAttribute value
-                            destNestedAttribute = new JacksonClassAttribute(attributeEntry.getValue().getClazz());
+                        JacksonClassAttribute srcJacksonClassAttribute = attributeEntry.getValue();
+                        if (srcJacksonClassAttribute != null) {    // save property with ClassAttribute value
+                            destNestedAttribute = new JacksonClassAttribute(srcJacksonClassAttribute.getClazz());
                             dest.getAttributes().put(key, destNestedAttribute);
                             if (destClassMap != null) {
                                 destClassMap.put(attributeEntry.getValue().getClazz(), destNestedAttribute);
                             }
+                            copyAttribute(srcJacksonClassAttribute, destNestedAttribute, PROP_ASTRIX, destClassMap);
                         } else {    // save property with null value
                             dest.getAttributes().put(key, null);    // null
                         }
