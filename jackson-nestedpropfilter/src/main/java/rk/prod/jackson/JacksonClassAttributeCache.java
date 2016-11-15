@@ -2,6 +2,8 @@ package rk.prod.jackson;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +27,8 @@ public class JacksonClassAttributeCache {
     private static final ArrayList<String> PROP_ASTRIX = Lists.newArrayList("*");
 
     // TODO: pre populate json class attribute map for ONLY root entities
+    private static final Map<KeyHolder, Map<Class<?>, JacksonClassAttribute>> cacheGlobal = new ConcurrentHashMap<>();
+
     private static final Map<Class<?>, JacksonClassAttribute> rootEntityNestedAttrMap = new ConcurrentHashMap<>();
 
     // only has attributes for the current class but includes all classes that
@@ -74,12 +78,17 @@ public class JacksonClassAttributeCache {
      *...
      */
     public static Map<Class<?>, JacksonClassAttribute> generateClassLevelJsonAttribute(Class<?> clazz, String... properties) {
-        Map<Class<?>, JacksonClassAttribute> customAttributeMap = new HashMap<>();
-        JacksonClassAttribute srcAttribute = generateJsonAttribute(clazz);
-        for (String prop : properties) {
-            copyAttribute(srcAttribute, customAttributeMap, dotSplitter.splitToList(prop));
+        KeyHolder key = new KeyHolder(clazz, properties);
+        Map<Class<?>, JacksonClassAttribute> result = cacheGlobal.get(key);
+        if (result == null) {
+            result = new HashMap<>();
+            JacksonClassAttribute srcAttribute = generateJsonAttribute(clazz);
+            for (String prop : properties) {
+                copyAttribute(srcAttribute, result, dotSplitter.splitToList(prop));
+            }
+            cacheGlobal.put(key, result);
         }
-        return customAttributeMap;
+        return result;
     }
 
     private static void copyAttribute(JacksonClassAttribute src, Map<Class<?>, JacksonClassAttribute> destClassMap, List<String> splitProp) {
@@ -148,6 +157,50 @@ public class JacksonClassAttributeCache {
                 src = srcNestedAttribute;
                 dest = destNestedAttribute;
             }
+        }
+    }
+
+
+    static class KeyHolder {
+
+        private final Class<?> clazz;
+
+        private final String[] properties;
+
+        public KeyHolder(Class<?> clazz, String[] properties) {
+            this.clazz = clazz;
+            this.properties = properties;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+
+            if (o == null || getClass() != o.getClass()) return false;
+
+            KeyHolder keyHolder = (KeyHolder) o;
+
+            return new EqualsBuilder()
+                    .append(clazz, keyHolder.clazz)
+                    .append(properties, keyHolder.properties)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(clazz)
+                    .append(properties)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            final StringBuffer sb = new StringBuffer("KeyHolder{");
+            sb.append("clazz=").append(clazz);
+            sb.append(", properties=").append(properties == null ? "null" : Arrays.asList(properties).toString());
+            sb.append('}');
+            return sb.toString();
         }
     }
 

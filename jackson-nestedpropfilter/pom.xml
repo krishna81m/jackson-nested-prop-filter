@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>rk.prod.jackson</groupId>
     <artifactId>jackson-nestedpropfilter</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <name>dynamic nested class property filter</name>
     <description>filter specific nested class properties dynamically - caches class property meta data to improve
         performance
@@ -47,6 +47,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
         </dependency>
 
         <!--  

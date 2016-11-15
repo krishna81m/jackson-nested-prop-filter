@@ -26,6 +26,7 @@ public class NestedBeanPropertyFilterTest {
 
     @Test
     public void serializeTest() throws JsonProcessingException {
+
         ObjectMapper objectMapper = new ObjectMapper();
 
         objectMapper.setFilterProvider(p);
