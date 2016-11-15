@@ -26,9 +26,9 @@ public class JacksonClassAttributeCache {
 
     private static final ArrayList<String> PROP_ASTRIX = Lists.newArrayList("*");
 
-    // TODO: pre populate json class attribute map for ONLY root entities
     private static final Map<KeyHolder, Map<Class<?>, JacksonClassAttribute>> cacheGlobal = new ConcurrentHashMap<>();
 
+    // TODO: pre populate json class attribute map for ONLY root entities
     private static final Map<Class<?>, JacksonClassAttribute> rootEntityNestedAttrMap = new ConcurrentHashMap<>();
 
     // only has attributes for the current class but includes all classes that
@@ -108,6 +108,11 @@ public class JacksonClassAttributeCache {
         for (String prop : splitProp) {
 
             if (prop.equals("*")) {
+                //if someone configure on primitive value * skip it.
+                if (src == null) {
+                    break;
+                }
+
                 Map<String, JacksonClassAttribute> srcAttributes = src.getAttributes();
                 for (Map.Entry<String, JacksonClassAttribute> attributeEntry : srcAttributes.entrySet()) {
                     String key = attributeEntry.getKey();
@@ -128,6 +133,7 @@ public class JacksonClassAttributeCache {
 
                     }
                 }
+                break;
             } else {
                 boolean inSrc = src.getAttributes().containsKey(prop);
                 if (!inSrc) {    // validation error?

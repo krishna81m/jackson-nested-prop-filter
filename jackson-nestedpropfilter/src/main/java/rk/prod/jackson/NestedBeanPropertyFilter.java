@@ -23,7 +23,7 @@ public class NestedBeanPropertyFilter extends SimpleBeanPropertyFilter {
         return new NestedBeanPropertyFilter(clazz, propertyArray);
     }
 
-    private Map<Class<?>, SimpleBeanPropertyFilter> classLevelBeanPropertyFilter = new HashMap<Class<?>, SimpleBeanPropertyFilter>();
+    private Map<Class<?>, SimpleBeanPropertyFilter> classLevelBeanPropertyFilter = new HashMap<>();
 
     /**
      * Construct filter based on many nested properties as follows

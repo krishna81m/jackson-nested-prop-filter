@@ -25,10 +25,10 @@ public class JacksonAttributeBuilder {
             // a primitive, a CharSequence(String), Number, Date, URI, URL, Locale, Class, or corresponding array
             // or add more like UUID or other types
             if (!BeanUtils.isSimpleProperty(descr.getPropertyType())) {
-                Field collectionfield = clazz.getDeclaredField(descr.getName());
-                if (collectionfield.getGenericType() instanceof ParameterizedType) {
-                    ParameterizedType integerListType = (ParameterizedType) collectionfield.getGenericType();
-                    Class<?> actualClazz = (Class<?>) integerListType.getActualTypeArguments()[0];
+                Field collectionField = clazz.getDeclaredField(descr.getName());
+                if (collectionField.getGenericType() instanceof ParameterizedType) {
+                    ParameterizedType listType = (ParameterizedType) collectionField.getGenericType();
+                    Class<?> actualClazz = (Class<?>) listType.getActualTypeArguments()[0];
 
                     JacksonClassAttribute attribute = getBeanUtilsNestedJsonAttribute(actualClazz, nonNestedAttributeMap, classes);
                     jsonAttribute.getAttributes().put(descr.getName(), attribute);
