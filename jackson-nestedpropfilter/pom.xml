@@ -8,8 +8,12 @@
     <description>filter specific nested class properties dynamically - caches class property meta data to improve
         performance
     </description>
-
-
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
     <properties>
         <spring.data.jpa.version>1.7.1.RELEASE</spring.data.jpa.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
