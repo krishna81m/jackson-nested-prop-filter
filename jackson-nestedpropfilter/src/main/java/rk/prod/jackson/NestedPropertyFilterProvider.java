@@ -14,42 +14,26 @@ public class NestedPropertyFilterProvider extends SimpleFilterProvider {
 	
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 */
-	public SimpleFilterProvider addFilter(String id, PropertyFilter filter) {
-		if (!(filter instanceof NestedBeanPropertyFilter)){
-			throw new ClassCastException("Expected NestedBeanPropertyFilter class");
-		}
-        _filtersById.put(id, filter);
-        return this;
-    }
-
-    /**
-     * Overloaded variant just to resolve "ties" when using {@link SimpleBeanPropertyFilter}.
-     */
-    public SimpleFilterProvider addFilter(String id, SimpleBeanPropertyFilter filter) {
-    	if (!(filter instanceof NestedBeanPropertyFilter)){
-			throw new ClassCastException("Expected NestedBeanPropertyFilter class");
-		}
-        _filtersById.put(id, filter);
-        return this;
-    }
-    
     public PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter) {
-		PropertyFilter f = _filtersById.get(filterId);
-		
-		// get filter for class
-		f = ((NestedBeanPropertyFilter)f).findPropertyFilter(valueToFilter.getClass());
-		
-        if (f == null) {
-            f = _defaultFilter;
-            if (f == null && _cfgFailOnUnknownId) {
-                throw new IllegalArgumentException("No filter configured with id '"+filterId+"' (type "
-                        +filterId.getClass().getName()+")");
+		PropertyFilter filter = _filtersById.get(filterId);
+
+        if (filter instanceof NestedBeanPropertyFilter) {
+
+            // get filter for class
+            filter = ((NestedBeanPropertyFilter) filter).findPropertyFilter(valueToFilter.getClass());
+
+            if (filter == null) {
+                filter = _defaultFilter;
+                if (filter == null && _cfgFailOnUnknownId) {
+                    throw new IllegalArgumentException("No filter configured with id '" + filterId + "' (type "
+                            + filterId.getClass().getName() + ")");
+                }
             }
+            return filter;
+        } else {
+            return super.findPropertyFilter(filterId, valueToFilter);
         }
-        return f;
-	};
+
+	}
 
 }

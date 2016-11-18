@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
+/**
  * JacksonClassAttribute represents a Jackson entity class with getters and setters
  * containing all properties that need to be serialized, in the case of
  * nested class attributes, the property itself can be another JacksonClassAttribute
@@ -13,7 +13,7 @@ public class JacksonClassAttribute {
 
 	/* current class type
 	 */
-	final Class<?> clazz;
+	private final Class<?> clazz;
 
 	/*
 	 * -> all primitive/wrapper type properties will have a value of null in map
@@ -28,7 +28,7 @@ public class JacksonClassAttribute {
 	 * 
 	 * This could have been a tree
 	 */
-	final Map<String, JacksonClassAttribute> attributes = new HashMap<>();
+	private final Map<String, JacksonClassAttribute> attributes = new HashMap<>();
 	
 	/* attributes containing same class
 	* required for filter to return JacksonClassAttribute based on object class

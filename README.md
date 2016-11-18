@@ -12,7 +12,7 @@ FilterProvider customJsonFilterProvider;
 public void setup(){
    customJsonFilterProvider = new NestedPropertyFilterProvider()
 			.addFilter("nestedPropertyFilter", 
-				new NestedBeanPropertyFilter(YourVO.class, "prop1", "prop1.prop2", "prop1.prop2.prop3"); 
+				NestedBeanPropertyFilter.filterOutAllExcept(YourVO.class, "prop1", "prop1.prop2", "prop1.prop2.prop3")); 
 ...
 
 
@@ -41,3 +41,6 @@ public class CustomObjectMapper extends ObjectMapper{
 
 }
 ```
+
+
+you can use * as part of the path it mean all the attributes of the field.
